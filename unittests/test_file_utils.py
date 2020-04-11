@@ -15,7 +15,22 @@ class TestFileUtils(TestCase):
         2. Confirm not empty
         """
         # 1. Get default config
-        configs = self.yaml_util.get_default_app_config()
+        configs = file_utils.get_default_app_config()
 
         # 2. Confirm not empty
         self.assertIsNotNone(configs)
+
+    def test_get_app_configs(self):
+        """ Test to get application configs
+        1. Get the config file
+        2. Confirm the expected length
+        3. Confirm the content
+        """
+        # 1. Get the config file
+        configs = self.yaml_util.get_application_configurations('test')
+
+        # 2. Confirm the expected length
+        self.assertEqual(3, len(configs))
+
+        # 3. Confirm the content
+        self.assertEqual(configs['Item3'], 'final thing')
