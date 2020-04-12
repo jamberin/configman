@@ -1,7 +1,6 @@
 """ Handle all functions needed for file reading
 YAML - Handles all YAML functions
 """
-
 import yaml
 from definitions import APP_DIR, get_current_env
 
@@ -26,14 +25,28 @@ def get_default_app_config():
 def read_yaml(file_location):
     """ Read and return the YAML dict in the file location
     :param file_location: Absolute file path for YAML file
-    :return:
+    :return: Dictionary of YAML file contents
     """
     with open(file_location, 'r') as stream:
         try:
             yaml_dict = yaml.load(stream, Loader=yaml.SafeLoader)
-        except yaml.YAMLError as exc:
-            print(exc)  # TODO configure logger
+        except yaml.YAMLError as e:
+            print(e)  # TODO configure logger
     return yaml_dict
+
+
+def write_yaml(file_location, file_contents):
+    """ Write dict to YAML file in the file location
+    :param file_location: Absolute file path for YAML file
+    :param file_contents: Dictionary of the YAML file
+    :return: TODO some type of confirmation of update success
+    """
+    with open(file_location, 'w') as stream:
+        try:
+            document = yaml.dump(file_contents, stream)
+        except yaml.YAMLError as e:
+            print(e)  # TODO configure logged
+    return document
 
 
 class YAML(object):
