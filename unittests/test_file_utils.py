@@ -42,9 +42,8 @@ class TestFileUtils(TestCase):
         """ Test to write a simple file
         1. Set up the test variables
         2. Write the file
-        3. Confirm the file length
-        4. Read the file
-        5. Confirm the contents
+        3. Read the file
+        4. Confirm the contents
         """
         # 1. Set up the test variables
         content = {
@@ -58,10 +57,34 @@ class TestFileUtils(TestCase):
         file_location = self.sys_conf['configs']['env'][self.env]['app_config_url'] + '/test.yaml'
 
         # 2. Write the file
-        document = file_utils.write_yaml(file_location, content)
+        chk = file_utils.write_yaml(file_location, content)
+        self.assertTrue(chk)
 
-        # 4. Read the file
+        # 3. Read the file
         configs = self.yaml_util.get_application_configurations('test')
 
-        # 5. Confirm the contents
+        # 4. Confirm the contents
         self.assertEqual(content, configs)
+
+    def test_write_test_app_config(self):
+        """ Test to write the test application configuration to file
+        1. Set up test variables
+        2. Write the file
+        3. Read the file confirm written as expected
+        """
+        # 1. Set up test variables
+        content = {
+            'Item1': 'this is one thing',
+            'Item2': {
+                'ItemA': 765,
+                'ItemB': 99
+            },
+            'Item3': 'final thing'
+        }
+
+        # 2. Write the file
+        self.assertTrue(self.yaml_util.write_application_configuration('test', content))
+
+        # 3. Read the file confirm written as expected
+        document = self.yaml_util.get_application_configurations('test')
+        self.assertEqual(content, document)

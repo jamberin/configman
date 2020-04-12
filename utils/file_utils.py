@@ -39,14 +39,16 @@ def write_yaml(file_location, file_contents):
     """ Write dict to YAML file in the file location
     :param file_location: Absolute file path for YAML file
     :param file_contents: Dictionary of the YAML file
-    :return: TODO some type of confirmation of update success
+    :return: Boolean Value of success/failure
     """
     with open(file_location, 'w') as stream:
         try:
-            document = yaml.dump(file_contents, stream)
+            yaml.dump(file_contents, stream)
+            chk = True
         except yaml.YAMLError as e:
             print(e)  # TODO configure logged
-    return document
+            chk = False
+    return chk
 
 
 class YAML(object):
@@ -77,3 +79,25 @@ class YAML(object):
 
         # 4. Return the YAML file
         return yaml_dict
+
+    def write_application_configuration(self, application, content):
+        """ After pulling the content and making the updates, update the application configs with specified content
+        1. Get the path of the app_config directory
+        2. Get the path for the given application configuration file
+        3. Write to the YAML file
+        4. Return success or failure message
+        :param application: Required, should be a string of the name of the application to be pulled
+        :param content: Dictionary of the application configurations
+        :return: Confirmation of success or failure
+        """
+        # 1. Get the path of the app_config directory
+        app_conf_dir = self.sys_conf['configs']['env'][self.env]['app_config_url']
+
+        # 2. Get the path for the given application configuration file
+        app_conf_dir += '/{file}.yaml'.format(file=application)
+
+        # 3. Write to the YAML file
+        chk = write_yaml(app_conf_dir, content)
+
+        # 4. Return success or failure message
+        return chk
