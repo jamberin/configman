@@ -1,7 +1,7 @@
 configs:
   env: 
     LOCAL:
-      app_config_url: '/usr/local/beringersolutions/app_configs'
+      app_config_url: '/usr/local/beringersolutions/app_configs/LOCAL'
     PROD:
       app_config_url: NULL
 applications: NULL
