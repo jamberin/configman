@@ -7,6 +7,7 @@
     - Validate password is correct
 """
 from utils.file_utils import YAML
+from utils import encryption_utils
 
 
 class GenerateCredentials(object):
@@ -57,3 +58,27 @@ class GenerateCredentials(object):
         chk = self.yaml.write_application_configuration(application, contents)
         if chk:
             return {'code': 200, 'message': 'Existing password value has been updated', 'success': True}
+
+    def validate_application_credentials(self, application, user_dict):
+        """ Validate application credentials to what is saved in the YAML configuration
+        1. Verify that the file is available
+            a. If no file, return with error
+        2. Validate the password against the hashed value for the password
+            a. If password correct, return success
+            b. If password incorrect, return failure
+        :param application:
+        :param user_dict:
+        :return:
+        """
+        # 1. Verify that the file is available
+        if self.yaml.get_application_configurations(application) is not None:
+            contents = self.yaml.get_application_configurations(application)
+        else:
+            return {'code': 404, 'message': 'Application configuration file not found', 'success': False}
+
+        # 2. Validate the password against the hashed value for the password
+        pass_hash = contents['profiles'][user_dict['user']]
+        if encryption_utils.validate_pass_hash(user_dict['password'], pass_hash):
+            return {'code': 202, 'message': 'Password match', 'success': True}
+        else:
+            return {'code': 401, 'message': 'Password does not match', 'success': True}
