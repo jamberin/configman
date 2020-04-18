@@ -2,6 +2,7 @@
 YAML - Handles all YAML functions
 """
 import yaml
+from pathlib import Path
 from definitions import APP_DIR, get_current_env
 
 
@@ -51,6 +52,14 @@ def write_yaml(file_location, file_contents):
     return chk
 
 
+def file_check(file_location):
+    """ Check that a file exists in the given directory
+    :param file_location: Absolute file path for YAML file
+    :return: Boolean validating the
+    """
+    return Path(file_location).is_file()
+
+
 class YAML(object):
     """ Handling YAML functions """
 
@@ -58,6 +67,27 @@ class YAML(object):
         """ Initialize class variables """
         self.env = get_current_env()
         self.sys_conf = get_default_app_config()
+
+    def check_for_application_file(self, application):
+        """ Check to see if an application has a configuration file
+        1. Get the path of the app_config directory
+        2. Get the path for the given application configuration file
+        3. Validate the path exists
+        4. Return the result
+        :param application: Required, should be a string of the name of the application to be pulled
+        :return: Boolean of whether the file exists
+        """
+        # 1. Get the path of the app_config directory
+        app_conf_dir = self.sys_conf['configs']['env'][self.env]['app_config_url']
+
+        # 2. Get the path for the given application configuration file
+        app_conf_dir += '/{file}.yaml'.format(file=application)
+
+        # 3. Validate the path exists
+        chk = file_check(app_conf_dir)
+
+        # 4. Return the result
+        return chk
 
     def get_application_configurations(self, application):
         """ Get the configurations for the application passed

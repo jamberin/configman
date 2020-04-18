@@ -88,3 +88,42 @@ class TestFileUtils(TestCase):
         # 3. Read the file confirm written as expected
         document = self.yaml_util.get_application_configurations('test')
         self.assertEqual(content, document)
+
+    def test_check_file_existence(self):
+        """ Test to validate a file can be found appropriately
+        1. Set up test variables
+        2. Check file existence
+        3. Validate the appropriate response
+        """
+        # 1. Set up test variables
+        file_location = self.sys_conf['configs']['env'][self.env]['app_config_url'] + '/test.yaml'
+
+        # 2. Check file existence
+        response = file_utils.file_check(file_location)
+
+        # 3. Validate the appropriate response
+        self.assertTrue(response)
+
+    def test_check_if_app_conf_exists(self):
+        """ Test to validate an app config exits
+        1. Set up test variables
+        2. Check if app config exists
+        3. Validate the appropriate response
+        4. Check if app config exists for one that doesn't
+        5. Validate the appropriate response
+        """
+        # 1. Set up test variables
+        good_app = 'test'
+        bad_app = 'batman'
+
+        # 2. Check if app config exists
+        response = self.yaml_util.check_for_application_file(good_app)
+
+        # 3. Validate the appropriate response
+        self.assertTrue(response)
+
+        # 4. Check if app config exists for one that doesn't
+        response = self.yaml_util.check_for_application_file(bad_app)
+
+        # 5. Validate the appropriate response
+        self.assertFalse(response)

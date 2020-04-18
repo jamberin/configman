@@ -7,10 +7,11 @@
     - Validate password is correct
 """
 from utils.file_utils import YAML
-from utils import encryption_utils
+from utils.encryption_utils import generate_user_dict_for_app_config, validate_pass_hash
+from utils.logger import logger
 
 
-class GenerateCredentials(object):
+class ApplicationCredentials(object):
     """ Generate the credentials for a user """
 
     def __init__(self):
@@ -21,8 +22,8 @@ class GenerateCredentials(object):
         """ Generate new credentials for an application
         1. Encrypt user password
         2. Check to see if the application has a file
-            a. If no file, generate new file with contents
-        3. If file exists, get current file contents
+            a. If file exists, get current file contents
+        3. If no file, generate new file with contents
         4. Check if record exists already
             a. If record does not exist, create
             b. If record does exist, validate overwrite
@@ -35,32 +36,55 @@ class GenerateCredentials(object):
         :return: If overwrite scenario, return overwrite validation, else, add the credential
         """
         # 1. Encrypt user password
-        user_dict = encryption_utils.generate_user_dict_for_app_config(**user_dict)
+        user_dict = generate_user_dict_for_app_config(**user_dict)
 
         # 2. Check to see if the application has a file
-        if self.yaml.get_application_configurations(application) is not None:
-            contents = self.yaml.get_application_configurations(application)
+        if self.yaml.check_for_application_file(application):
+            if 'profiles' in self.yaml.get_application_configurations(application):
+                logger.info('Getting existing configs for %s' % application)
+                contents = self.yaml.get_application_configurations(application)
+            else:
+                contents = {
+                    'profiles': {
+                        user_dict['user']: {
+                            'user': user_dict['user'],
+                            'password': user_dict['password']
+                        }
+                    }
+                }
+                chk = self.yaml.write_application_configuration(application, contents)
+                logger.info('Profile Created: %s' % user_dict['user'])
+                return {'code': 201, 'message': 'User created successfully', 'success': chk}
 
-        # 3. If file exists, get current file contents
+        # 3. If no file, generate new file with contents
         else:
-            contents = {}
-            contents['profiles'][user_dict['user']] = user_dict['password']
-            chk = self.yaml.write_application_configuration(application, content=user_dict)
+            contents = {
+                'profiles': {
+                    user_dict['user']: {
+                        'user': user_dict['user'],
+                        'password': user_dict['password']
+                    }
+                }
+            }
+            chk = self.yaml.write_application_configuration(application, contents)
+            logger.info('Profile Created: %s' % user_dict['user'])
             return {'code': 201, 'message': 'User created successfully', 'success': chk}
 
         # 4. Check if record exists already
         users = []
         for profile in contents['profiles']:
-            users.append(profile['user'])
+            username = contents['profiles'][profile]['user']
+            users.append(username)
         if user_dict['user'] in users:
             if overwrite:
-                contents['profiles'][user_dict['user']] = user_dict['password']
+                contents['profiles'][user_dict['user']]['password'] = user_dict['password']
             else:
                 return {'code': 403, 'message': 'Overwrite flag needs to be set', 'success': False}
 
         # 5. Write the file back saving the changes
         chk = self.yaml.write_application_configuration(application, contents)
         if chk:
+            logger.info('Profile Created: %s' % user_dict['user'])
             return {'code': 200, 'message': 'Existing password value has been updated', 'success': True}
 
     def validate_application_credentials(self, application, user_dict):
@@ -75,14 +99,21 @@ class GenerateCredentials(object):
         :return:
         """
         # 1. Verify that the file is available
-        if self.yaml.get_application_configurations(application) is not None:
+        if self.yaml.check_for_application_file(application):
             contents = self.yaml.get_application_configurations(application)
         else:
+            logger.error('Application configuration file not found: %s' % application)
             return {'code': 404, 'message': 'Application configuration file not found', 'success': False}
 
         # 2. Validate the password against the hashed value for the password
-        pass_hash = contents['profiles'][user_dict['user']]
-        if encryption_utils.validate_pass_hash(user_dict['password'], pass_hash):
+        if user_dict['user'] in contents['profiles']:
+            pass_hash = contents['profiles'][user_dict['user']]['password']
+        else:
+            logger.error('User not found: %s' % user_dict['user'])
+            return {'code': 404, 'message': 'Application configuration user not found', 'success': False}
+        if validate_pass_hash(user_dict['password'].encode('utf8'), pass_hash):
+            logger.info('User validated: %s' % user_dict['user'])
             return {'code': 202, 'message': 'Password match', 'success': True}
         else:
-            return {'code': 401, 'message': 'Password does not match', 'success': True}
+            logger.info('User invalid password: %s' % user_dict['user'])
+            return {'code': 401, 'message': 'Password does not match', 'success': False}
