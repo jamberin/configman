@@ -80,12 +80,17 @@ class ApplicationCredentials(object):
                 contents['profiles'][user_dict['user']]['password'] = user_dict['password']
             else:
                 return {'code': 403, 'message': 'Overwrite flag needs to be set', 'success': False}
+        else:
+            contents['profiles'][user_dict['user']] = {
+                'user': user_dict['user'],
+                'password': user_dict['password']
+            }
 
         # 5. Write the file back saving the changes
         chk = self.yaml.write_application_configuration(application, contents)
         if chk:
-            logger.info('Profile Created: %s' % user_dict['user'])
-            return {'code': 200, 'message': 'Existing password value has been updated', 'success': True}
+            logger.info('Profile Change: %s' % user_dict['user'])
+            return {'code': 200, 'message': 'Existing file has been updated', 'success': True}
 
     def validate_application_credentials(self, application, user_dict):
         """ Validate application credentials to what is saved in the YAML configuration

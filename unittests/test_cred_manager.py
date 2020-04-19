@@ -108,6 +108,72 @@ class TestCredManager(TestCase):
         self.assertEqual(response['code'], 202)
         self.assertTrue(response['success'])
 
+    def test_creation_for_existing_app(self):
+        """ Test to validate the flow of an existing app getting a new credential or updating a credential
+        1. Set up test variables
+        2. Generate the new test application
+        3. Validate credentials accurate
+        4. Update credentials for same user
+        5. Validate credentials accurate
+        6. Add new credential to existing file
+        7. Validate credentials accurate
+        8. Update new credential
+        9. Validate credentials accurate
+        """
+        # 1. Set up test variables
+        application = 'test_app' + str(randint(0, 99))
+        user_dict = {
+            'user': 'test_user',
+            'password': 'test_pass'
+        }
+        second_user_dict = {
+            'user': 'test_user_second',
+            'password': 'test_pass_different'
+        }
+        new_password = 'test_pass_new'
+
+        # 2. Generate the new test application
+        response = self.app_creds.create_update_application_credentials(application, user_dict)
+        self.assertEqual(response['code'], 201)
+        self.assertTrue(response['success'])
+
+        # 3. Validate credentials accurate
+        response = self.app_creds.validate_application_credentials(application, user_dict)
+        self.assertEqual(response['code'], 202)
+        self.assertTrue(response['success'])
+
+        # 4. Update credentials for same user
+        user_dict['password'] = new_password
+        response = self.app_creds.create_update_application_credentials(application, user_dict, overwrite=True)
+        self.assertEqual(response['code'], 200)
+        self.assertTrue(response['success'])
+
+        # 5. Validate credentials accurate
+        response = self.app_creds.validate_application_credentials(application, user_dict)
+        self.assertEqual(response['code'], 202)
+        self.assertTrue(response['success'])
+
+        # 6. Add new credential to existing file
+        response = self.app_creds.create_update_application_credentials(application, second_user_dict)
+        self.assertEqual(response['code'], 200)
+        self.assertTrue(response['success'])
+
+        # 7. Validate credentials accurate
+        response = self.app_creds.validate_application_credentials(application, second_user_dict)
+        self.assertEqual(response['code'], 202)
+        self.assertTrue(response['success'])
+
+        # 8. Update new credential
+        second_user_dict['password'] = new_password
+        response = self.app_creds.create_update_application_credentials(application, second_user_dict, overwrite=True)
+        self.assertEqual(response['code'], 200)
+        self.assertTrue(response['success'])
+
+        # 9. Validate credentials accurate
+        response = self.app_creds.validate_application_credentials(application, second_user_dict)
+        self.assertEqual(response['code'], 202)
+        self.assertTrue(response['success'])
+
     def test_error_scenarios(self):
         """ Test to validate the various error scenarios and the responses
         1. Set up test variables
