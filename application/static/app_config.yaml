@@ -2,7 +2,9 @@ configs:
   env: 
     LOCAL:
       app_config_url: '/usr/local/beringersolutions/app_configs/LOCAL'
+      configman_key: 'mA1W9tQK[~*~3QLj"(K)=$%GzV`{@D'
     PROD:
       app_config_url: NULL
+      configman_key: NULL
 applications: NULL
 primary_configurations: NULL
