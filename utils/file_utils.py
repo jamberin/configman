@@ -2,6 +2,7 @@
 YAML - Handles all YAML functions
 """
 import yaml
+from utils.logger import logger
 from pathlib import Path
 from definitions import APP_DIR, get_current_env
 
@@ -32,7 +33,7 @@ def read_yaml(file_location):
         try:
             yaml_dict = yaml.load(stream, Loader=yaml.SafeLoader)
         except yaml.YAMLError as e:
-            print(e)  # TODO configure logger
+            logger.error(e)
     return yaml_dict
 
 
@@ -47,7 +48,7 @@ def write_yaml(file_location, file_contents):
             yaml.dump(file_contents, stream)
             chk = True
         except yaml.YAMLError as e:
-            print(e)  # TODO configure logged
+            logger.error(e)
             chk = False
     return chk
 
