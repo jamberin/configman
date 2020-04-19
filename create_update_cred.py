@@ -44,7 +44,7 @@ SUPER = ARGS.overwrite
 logger.info("                               d8b")
 logger.info("                               88P")
 logger.info("                              d88")
-logger.info("   d8888b  88bd88b d8888b d888888    88bd8b,d88b  d888b8b    88bd88b ")
+logger.info("   d8888b  88bd88b d8888b d888888    88bd8b,d88b  d888b8b    88bd88b")
 logger.info("  d8P' `P  88P'  `d8b_,dPd8P' ?88    88P'`?8P'?8bd8P' ?88    88P' ?8b")
 logger.info("  88b     d88     88b    88b  ,88b  d88  d88  88P88b  ,88b  d88   88P")
 logger.info("  `?888P'd88'     `?888P'`?88P'`88bd88' d88'  88b`?88P'`88bd88'   88b")
