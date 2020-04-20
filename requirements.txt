@@ -1,3 +1,5 @@
 flask
 pyyaml
 bcrypt
+itsdangerous
+Flask-HTTPAuth

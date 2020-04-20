@@ -1,6 +1,6 @@
 """ Unit tests for cred manager """
 from unittest import TestCase
-from application.func.cred_manager.credential_manager import ApplicationCredentials
+from application.func.cred_manager.credential import ApplicationCredentials
 from utils import file_utils
 from random import randint
 

@@ -4,7 +4,7 @@ USAGE:
 - python ./create_update_cred.py
 - python ./create_update_cred.py application username
 """
-from application.func.cred_manager.credential_manager import ApplicationCredentials
+from application.func.cred_manager.credential import ApplicationCredentials
 from argparse import ArgumentParser
 from getpass import getpass
 from utils.logger import logger
