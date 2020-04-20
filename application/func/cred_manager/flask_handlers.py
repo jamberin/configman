@@ -2,7 +2,7 @@
 - CredResp: Handles the API responses
 - AuthToken: Handles all token related activities
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 
 
@@ -19,8 +19,13 @@ class AuthToken(object):
         :param username: Hashed password for the given user to generate the token against
         :return: Proper token for usage
         """
-        serial = Serializer(self.app.secret_key, expires_in=self.expiration)
-        return serial.dumps({'user': username})
+        serial = Serializer(self.app.secret_key)
+        exp_epoch = datetime.timestamp(datetime.now() + timedelta(seconds=self.expiration))
+        response = {
+            'user': username,
+            'exp_time': str(exp_epoch)
+        }
+        return serial.dumps(response)
 
     def validate_auth_token(self, token, username):
         """ Validates the token for the given username
@@ -49,13 +54,19 @@ class AuthToken(object):
             response['exception'] = 'BadSignature'
             return response
         if token['user'] == username:
-            response['code'] = 200
-            response['message'] = {
-                'user': username,
-                'timestamp': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
-            }
-            response['success'] = True
-            response['exception'] = None
+            if float(token['exp_time']) > datetime.timestamp(datetime.now()):
+                response['code'] = 200
+                response['message'] = {
+                    'user': username,
+                    'timestamp': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
+                }
+                response['success'] = True
+                response['exception'] = None
+            else:
+                response['code'] = 401
+                response['message'] = 'Unauthorized: Expired Token'
+                response['success'] = False
+                response['exception'] = 'SignatureExpired'
             return response
         else:
             response['code'] = 403

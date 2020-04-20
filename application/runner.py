@@ -9,7 +9,7 @@ from definitions import get_current_env
 from utils.file_utils import get_default_app_config
 from utils.logger import logger
 
-from flask import Flask, request, abort, json, jsonify
+from flask import Flask, request, abort, jsonify
 
 from application.func.cred_manager.credential import ApplicationCredentials
 from application.func.cred_manager.flask_handlers import AuthToken
