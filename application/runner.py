@@ -88,6 +88,7 @@ def testing_route():
     return 'Hello'
 
 
+# Authentication Endpoints
 @app.route('/auth/token/generate', methods=['POST'])
 def get_auth_token():
     # Validate payload
@@ -135,5 +136,20 @@ def verify_token():
         return success('/auth/token/validate', response)
 
 
+# Configuration Endpoints
+# @app.route('/app/configs', methods=['POST'])
+# def get_app_configs():
+#     if not (request.json or request.authorization or 'user' in request.json or
+#             'cred' in request.json or 'app' in request.json):
+#         logger.debug('Something is missing from your payload.  Double check everything is there')
+#         logger.debug(str(request.json))
+#         abort(400)
+#     response = auth_token.validate_auth_token(request.json['token'], request.json['user'])
+#     if response['exception']:
+#         return warn('authVal', response)
+#     else: TODO CREATE METHODS TO HANDLE THE ACTUAL CONFIGURATIONS
+#
+
+# Runner
 if __name__ == '__main__':
     app.run(debug=True)
