@@ -1,6 +1,7 @@
 """ Unit tests for cred manager """
 from unittest import TestCase
 from application.func.cred_manager.credential import ApplicationCredentials
+from application.func.cred_manager.configs import ApplicationConfigs
 from utils import file_utils
 from random import randint
 
@@ -10,6 +11,7 @@ class TestCredManager(TestCase):
     def setUp(self):
         """ Set up class variables """
         self.app_creds = ApplicationCredentials()
+        self.app_config = ApplicationConfigs()
 
     def test_create_and_validate_new_application_credentials(self):
         """ Test to generate application credentials for a test app
@@ -211,3 +213,52 @@ class TestCredManager(TestCase):
         response = self.app_creds.validate_application_credentials(application, user_dict)
         self.assertEqual(response['code'], 401)
         self.assertFalse(response['success'])
+
+    def test_config_write_new(self):
+        """ Test to validate a new credential can be written to the file appropriately
+        1. Set up test variables
+        2. Generate the credentials
+        3. Run the validate application credentials
+        4. Create configuration for the file
+        5. Validate the response
+        6. Read the configuration
+        7. Validate the configuration is correct
+        """
+        # 1. Set up test variables
+        application = 'test_app' + str(randint(0, 99))
+        user_dict = {
+            'user': 'test_user',
+            'password': 'test_pass'
+        }
+        config_type = 'dirs'
+        config_dict = {
+            'this.app.dir': '/usr/local/beringersolutions/etc',
+            'that.app.dir': '/usr/local/beringersolutions/etc2'
+        }
+
+        # 2. Generate the credentials
+        response = self.app_creds.create_update_application_credentials(application, user_dict)
+        self.assertEqual(response['code'], 201)
+        self.assertTrue(response['success'])
+
+        # 3. Run the validate application credentials
+        response = self.app_creds.validate_application_credentials(application, user_dict)
+        self.assertEqual(response['code'], 202)
+        self.assertTrue(response['success'])
+
+        # 4. Create configuration for the file
+        response = self.app_config.create_update_application_configuration(application, user_dict['user'],
+                                                                           config_type=config_type,
+                                                                           config_dict=config_dict)
+
+        # 5. Validate the response
+        self.assertEqual(response['code'], 200)
+        self.assertTrue(response['success'])
+
+        # 6. Read the configuration
+        response = self.app_config.read_application_configs(application, config_type, user_dict['user'])
+        self.assertEqual(response['code'], 200)
+        self.assertTrue(response['success'])
+
+        # 7. Validate the configuration is correct
+        self.assertEqual(config_dict, response['message'])

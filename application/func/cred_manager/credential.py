@@ -30,7 +30,7 @@ class ApplicationCredentials(object):
                 i. If overwrite set overwrite
                 ii. Else expected overwrite failure
         5. Write the file back saving the changes
-        :param application: The application that the credentials are being generated for
+        :param application: The application that the credentials are being written
         :param user_dict: The new dictionary that is going to be added
         :param overwrite: Overwrite the existing credential
         :return: If overwrite scenario, return overwrite validation, else, add the credential
@@ -91,6 +91,9 @@ class ApplicationCredentials(object):
         if chk:
             logger.info('Profile Change: %s' % user_dict['user'])
             return {'code': 200, 'message': 'Existing file has been updated', 'success': True}
+        else:
+            logger.error('Error writing application configuration')
+            return {'code': 500, 'message': 'Error writing to file', 'success': True}
 
     def validate_application_credentials(self, application, user_dict):
         """ Validate application credentials to what is saved in the YAML configuration
