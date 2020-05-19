@@ -12,6 +12,7 @@ from utils.logger import logger
 from flask import Flask, request, abort, jsonify
 
 from application.func.cred_manager.credential import ApplicationCredentials
+from application.func.cred_manager.configs import ApplicationConfigs
 from application.func.cred_manager.flask_handlers import AuthToken
 
 # Constants
@@ -25,6 +26,7 @@ app.secret_key = CONF['configs']['env'][ENV]['configman_key']
 
 # Import Shortcuts
 app_creds = ApplicationCredentials()
+app_confs = ApplicationConfigs()
 auth_token = AuthToken(app, EXP_TIME)
 
 
@@ -82,13 +84,25 @@ def handle_response(payload, code):
     return response
 
 
+# Tools
+def handle_auth_in_req(token, user):
+    """ Validates the request header proper formatting """
+    response = auth_token.validate_auth_token(token, user)
+    if response['exception']:
+        return warn('authVal', response)
+    else:
+        return response
+
+
 # Test Endpoint
 @app.route('/test')
 def testing_route():
     return 'Hello'
 
 
-# Authentication Endpoints
+############################
+# AUTHENTICATION ENDPOINTS #
+############################
 @app.route('/auth/token/generate', methods=['POST'])
 def get_auth_token():
     # Validate payload
@@ -136,19 +150,53 @@ def verify_token():
         return success('/auth/token/validate', response)
 
 
-# Configuration Endpoints
-# @app.route('/app/configs', methods=['POST'])
-# def get_app_configs():
-#     if not (request.json or request.authorization or 'user' in request.json or
-#             'cred' in request.json or 'app' in request.json):
-#         logger.debug('Something is missing from your payload.  Double check everything is there')
-#         logger.debug(str(request.json))
-#         abort(400)
-#     response = auth_token.validate_auth_token(request.json['token'], request.json['user'])
-#     if response['exception']:
-#         return warn('authVal', response)
-#     else: TODO CREATE METHODS TO HANDLE THE ACTUAL CONFIGURATIONS
-#
+###########################
+# CONFIGURATION ENDPOINTS #
+###########################
+@app.route('/app/configs', methods=['POST', 'PUT'])
+def handle_app_configs():
+    # Get headers
+    if not (request.json or 'Authorization' in request.headers or 'user' in request.headers):
+        logger.debug('Something is missing from your payload.  Double check everything is there')
+        logger.debug(str(request.json))
+        abort(400)
+    response = handle_auth_in_req(request.headers['Authorization'], request.headers['User'])
+    if type(response) != dict:
+        return response
+    if request.method == 'PUT':
+        # Create the new config
+        if not ('app' in request.json or 'configType' in request.json or 'configKey' in request.json or 'configVal' in
+                request.json):
+            logger.debug('Something is missing from your payload.  Double check everything is there')
+            logger.debug(str(request.json))
+            abort(400)
+        else:
+            response = app_confs.create_update_application_configuration(request.json['app'],
+                                                                         response['message']['user'],
+                                                                         request.json['configType'],
+                                                                         {
+                                                                             request.json['configKey']:
+                                                                                 request.json['configVal']
+                                                                         })
+            if response['success']:
+                return success('/app/configs', response)
+            else:
+                return err(response)
+    elif request.method == 'POST':
+        # Return current
+        if not ('app' in request.json or 'configType' in request.json):
+            logger.debug('Something is missing from your payload.  Double check everything is there')
+            logger.debug(str(request.json))
+            abort(400)
+        else:
+            response = app_confs.read_application_configs(request.json['app'], request.json['configType'],
+                                                          response['message']['user'])
+            if response['success']:
+                return success('/app/configs', response)
+            else:
+                return err(response)
+        return
+
 
 # Runner
 if __name__ == '__main__':
