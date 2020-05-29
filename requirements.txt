@@ -3,3 +3,5 @@ pyyaml
 bcrypt
 itsdangerous
 Flask-HTTPAuth
+uwsgi
+wheel
