@@ -5,6 +5,7 @@ This will handle the majority of the functions for the application
 - Get Configuration
 - Authenticate Credential?
 """
+import json
 from definitions import get_current_env
 from utils.file_utils import get_default_app_config
 from utils.logger import logger
@@ -107,22 +108,24 @@ def testing_route():
 def get_auth_token():
     # Validate payload
     if not (request.json or 'user' in request.json or 'password' in request.json or 'app' in request.json):
+        content = json.loads(request.json)
         logger.debug('Something is missing from your payload.  Double check everything is there')
-        logger.debug(str(request.json))
+        logger.debug(str(content))
         abort(400)
 
     # Validate credentials
+    content = json.loads(request.json)
     user_dict = {
-        'user': request.json['user'],
-        'password': request.json['password']
+        'user': content['user'],
+        'password': content['password']
     }
-    response = app_creds.validate_application_credentials(request.json['app'], user_dict)
+    response = app_creds.validate_application_credentials(content['app'], user_dict)
     status_code = response['code']
 
     # Generate Token
     if response['success']:
-        logger.info('User %s authenticated, generating token' % request.json['user'])
-        token = auth_token.generate_auth_token(request.json['user'])
+        logger.info('User %s authenticated, generating token' % content['user'])
+        token = auth_token.generate_auth_token(content['user'])
         response = {
             'code': status_code,
             'success': True,
@@ -132,7 +135,7 @@ def get_auth_token():
         }
         return success('/auth/token/generate', response)
     else:
-        logger.warning('User %s not authenticated, reporting error...' % request.json['user'])
+        logger.warning('User %s not authenticated, reporting error...' % content['user'])
         return warn('authGen', response)
 
 
@@ -140,10 +143,12 @@ def get_auth_token():
 def verify_token():
     # Validate payload
     if not (request.json or 'user' in request.json or 'token' in request.json):
+        content = json.loads(request.json)
         logger.debug('Something is missing from your payload.  Double check everything is there')
-        logger.debug(str(request.json))
+        logger.debug(str(content))
         abort(400)
-    response = auth_token.validate_auth_token(request.json['token'], request.json['user'])
+    content = json.loads(request.json)
+    response = auth_token.validate_auth_token(content['token'], content['user'])
     if response['exception']:
         return warn('authVal', response)
     else:
@@ -200,4 +205,5 @@ def handle_app_configs():
 
 # Runner
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    # app.run(debug=False, host='0.0.0.0')  # For production deploy
+    app.run(debug=True)                     # For local testing
