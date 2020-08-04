@@ -51,6 +51,7 @@ logger.info("Yb      Yb   dP 88 Y88 88''   88 Yb  '88 88YbdP88  dP__Yb  88 Y88 "
 logger.info(" YboodP  YbodP  88  Y8 88     88  YboodP 88 YY 88 dP''''Yb 88  Y8 ")
 logger.info('\n')
 
+# Validate arguments
 if APP is None:
     APP = input('Please enter the name of the application: ')
 if USER is None:
