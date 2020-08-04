@@ -1,8 +1,8 @@
 #!/usr/bin/python
 """ Script to create application credentials
 USAGE:
-- python ./create_update_cred.py
-- python ./create_update_cred.py [-h] [-a APPLICATION] [-u USERNAME] [-o [OVERWRITE]]
+- python ./cred_script.py
+- python ./cred_script.py [-h] [-a APPLICATION] [-u USERNAME] [-o [OVERWRITE]]
 """
 from application.func.cred_manager.credential import ApplicationCredentials
 from argparse import ArgumentParser

@@ -49,7 +49,7 @@ class ApplicationConfigs(object):
         valid_types = {'dirs', 'vars'}
         if config_type not in valid_types:
             logger.error('Not a valid config type: %s' % config_type)
-            return {'code': 403, 'message': 'Overwrite flag needs to be set', 'success': False}
+            return {'code': 403, 'message': 'Not a valid config type', 'success': False}
         if 'configs' in contents:
             if contents['configs'][config_type]:
                 contents_keys = contents['configs'][config_type].keys()
