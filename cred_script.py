@@ -41,6 +41,7 @@ SUPER = ARGS.overwrite
 
 # SCRIPT
 # App splash
+logger.info('\n')
 logger.info("                               d8b")
 logger.info("                               88P")
 logger.info("                              d88")
