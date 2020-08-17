@@ -61,6 +61,12 @@ if TYPE is None:
 if CONF is None:
     CONF = input('Please enter the configuration key to be generated: ')
 VALUE = input('Enter the value of the new configuration: ')
+if SUPER is None:
+    choice = input('Overwrite file? (Y/n): ')
+    if choice == 'Y' or choice == 'y':
+        SUPER = True
+    elif choice == 'n':
+        SUPER = False
 CONF_DICT = {
     CONF: VALUE
 }
