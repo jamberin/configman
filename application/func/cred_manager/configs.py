@@ -6,7 +6,6 @@
 """
 from utils.file_utils import YAML
 from utils.logger import logger
-import warnings
 
 
 class ApplicationConfigs(object):
