@@ -173,7 +173,8 @@ def handle_app_configs():
         logger.debug(str(request.json))
         abort(400)
     else:
-        response = app_confs.read_application_configs(request.json['app'], request.json['configType'],
+        content = json.loads(request.json)
+        response = app_confs.read_application_configs(content['app'], content['configType'],
                                                       response['message']['user'])
         if response['success']:
             return success('/app/configs', response)
