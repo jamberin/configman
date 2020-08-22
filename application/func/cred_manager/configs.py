@@ -107,7 +107,7 @@ class ApplicationConfigs(object):
 
         # 3. Check the config type exists
         if 'configs' in contents:
-            if contents['configs'][config_type]:
+            if config_type in contents['configs']:
                 response = contents['configs'][config_type]
             else:
                 return {'code': 404, 'message': 'Config type not found', 'success': False}
