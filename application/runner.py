@@ -114,7 +114,7 @@ def get_auth_token():
         abort(400)
 
     # Validate credentials
-    content = json.loads(request.json)
+    content = request.json
     user_dict = {
         'user': content['user'],
         'password': content['password']
